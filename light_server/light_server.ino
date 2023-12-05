@@ -2,7 +2,25 @@ int photo_pin = A0;
 int touch_pin = 2;
 int magnet_pin = 3;
 
-string welcome_message = "Clown";
+class Timer {
+  private:
+    int _delay;
+    int _time;
+  public:
+    Timer(int delay) {
+      _delay = delay;
+      _time = 0;
+    }
+
+    bool tick() {
+      int currentTime = millis();
+      if (currentTime - _time >= _delay) {
+        _time = currentTime;
+        return true;
+      }
+      return false;
+    }
+};
 
 void setup() {
   Serial.begin(9600);
@@ -11,33 +29,38 @@ void setup() {
   pinMode(magnet_pin, INPUT);
 }
 
-int photo_delay = 1000;
-int prev_photo_time = 0;
+Timer photo_timer(1000);
+Timer touch_timer(500);
+Timer magnet_timer(500);
 
-int debounce_time = 500;
-int prev_magnet_debounce_time = 0;
 int prev_touch_data = 0;
-
-int magnet_debounce_time = 500;
-int prev_debounce_time = 0;
 int prev_magnet_data = 0;
 
+String welcome_message = "wlc";
+
+void listen_welcome() {
+  if (Serial.available() > 0) {
+    String message = Serial.readString();
+    if (message == welcome_message) {
+      Serial.println(welcome_message);
+    }
+  }
+}
+
 void loop() {
+  listen_welcome();
+
   int touch_data = digitalRead(touch_pin);
   int magnet_data = digitalRead(magnet_pin);
 
-  int currentTime = millis();
-
-  if (currentTime - prev_photo_time > photo_delay) {
+  if (photo_timer.tick()) {
     int photo_data = analogRead(photo_pin);
-    prev_photo_time = currentTime;
     Serial.print("p ");
     Serial.println(photo_data);
   }
 
   if (touch_data > 0 && prev_touch_data == 0) {
-    if (currentTime - prev_debounce_time > debounce_time) {
-      prev_debounce_time = currentTime;
+    if (touch_timer.tick()) {
       Serial.println("t");
     } else {
       touch_data = 0;
@@ -45,8 +68,7 @@ void loop() {
   }
 
   if (magnet_data > 0 && prev_magnet_data == 0) {
-    if (currentTime - prev_magnet_debounce_time> magnet_debounce_time) {
-      prev_magnet_debounce_time = currentTime;
+    if (magnet_timer.tick()) {
       Serial.println("m");
     } else {
       magnet_data = 0;
