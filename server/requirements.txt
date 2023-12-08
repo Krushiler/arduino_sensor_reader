@@ -1,0 +1,4 @@
+reactivex~=4.0.4
+pyserial~=3.5
+zmq~=0.0.0
+pyzmq~=25.1.1
