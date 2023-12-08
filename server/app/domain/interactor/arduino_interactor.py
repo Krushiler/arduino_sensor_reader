@@ -9,4 +9,5 @@ class ArduinoInteractor:
 
     def start(self) -> None:
         self._arduino_repository.start()
+        self._network_repository.start()
         self._arduino_repository.values().subscribe(lambda x: self._network_repository.send_event(x))
