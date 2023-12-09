@@ -36,13 +36,13 @@ Timer magnet_timer(500);
 int prev_touch_data = 0;
 int prev_magnet_data = 0;
 
-String welcome_message = "wlc";
+String welcome_message = "w3lc0m3blya";
 
 void listen_welcome() {
   if (Serial.available() > 0) {
     String message = Serial.readString();
+    Serial.println(welcome_message);
     if (message == welcome_message) {
-      Serial.println(welcome_message);
     }
   }
 }

@@ -45,15 +45,22 @@ class SerialReader:
             try:
                 print(serial_port.name)
                 self._ser = serial.Serial(serial_port.name, 9600)
-                self._ser.write(b"wlc")
-                time.sleep(1)
-                line = self._ser.read_all().decode("utf-8")
-                if "wlc" not in line:
-                    print("Port found")
-                    return
-                else:
-                    self._ser = None
-            except serial.SerialException:
+                self._ser.writeTimeout = 1
+                self._ser.timeout = 1
+                self._ser.readlines()
+                self._ser.writelines([b"wlc"])
+                for i in range(1):
+                    line = self._ser.readline().decode('utf-8')
+                    line = re.sub("\r\n", "", line)
+                    if line == "":
+                        return
+                    else:
+                        print(f"Not satisfied with line: {line}")
+                self._ser = None
+            except serial.SerialException as e:
+                self._ser = None
+                print(e)
                 continue
             except ValueError:
+                self._ser = None
                 continue
