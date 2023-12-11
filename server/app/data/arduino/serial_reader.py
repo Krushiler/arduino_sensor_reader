@@ -46,7 +46,7 @@ class SerialReader:
                 print(serial_port.name, end=" ")
                 self._ser = serial.Serial(serial_port.name, 9600)
                 self._ser.writeTimeout = 1
-                self._ser.timeout = 10
+                self._ser.timeout = 5
 
                 self._ser.flushOutput()
                 self._ser.flushInput()
@@ -54,13 +54,18 @@ class SerialReader:
                 self._ser.write(b'H')
                 time.sleep(.1)
                 if self._ser.inWaiting() > 0:
-                    lines = self._ser.read_all().decode('utf-8')
-                    lines = lines.split("\n")
+                    lines_str = self._ser.read_all().decode('utf-8')
+                    lines = lines_str.split("\n")
+                    print(lines)
                     for line_raw in lines:
                         line = re.sub("\r\n", "", line_raw)
                         if "HClient" in line:
                             print("\tPort found")
                             return
+                else:
+                    print("\tPort found")
+                    return
+
                 print(f"\tNot connected")
                 self._ser = None
             except serial.SerialException as e:
