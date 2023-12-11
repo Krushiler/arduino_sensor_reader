@@ -11,7 +11,7 @@ class NetworkRepositoryImpl:
     def start(self) -> None:
         self._socket = self._context.socket(zmq.PUB)
         port = AppConfig.port
-        self._socket.bind(f"tcp://127.0.0.1:{port}")
+        self._socket.bind(f"tcp://*:{port}")
 
     def send_event(self, event: str) -> None:
         print(f"Sending event: {event}")

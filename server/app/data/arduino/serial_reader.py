@@ -5,6 +5,8 @@ import reactivex as rx
 import serial
 from serial.tools import list_ports
 
+import logging
+
 
 class SerialReader:
     def __init__(self):
@@ -15,9 +17,9 @@ class SerialReader:
         return self._values
 
     def start(self):
-        while True:
-            self._find_serial_port_infinite()
-            self._listen_output()
+        self._find_serial_port_infinite()
+        self._listen_output()
+        time.sleep(.05)
 
     def _listen_output(self):
         print("Listening for output")
@@ -26,6 +28,7 @@ class SerialReader:
                 self._consume_output()
             except serial.SerialException:
                 self._ser = None
+                logging.critical("No device found")
 
     def _consume_output(self):
         line = self._ser.readline().decode("utf-8")
@@ -44,7 +47,7 @@ class SerialReader:
         for serial_port in serial_ports:
             try:
                 print(serial_port.name, end=" ")
-                self._ser = serial.Serial(serial_port.name, 9600)
+                self._ser = serial.Serial(serial_port.device, 9600)
                 self._ser.writeTimeout = 1
                 self._ser.timeout = 5
 
